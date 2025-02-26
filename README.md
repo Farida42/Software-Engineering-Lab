@@ -1,3 +1,2 @@
 # Software Engineering Lab
-# Project Mid
-# Tic-Tac-Toe-Game
+# Project Mid(Tic-Tac-Toe-Game)
