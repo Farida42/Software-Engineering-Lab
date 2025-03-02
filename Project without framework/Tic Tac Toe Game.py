@@ -1,73 +1,129 @@
-import tkinter as tk
-from tkinter import messagebox
+from tkinter import *
+import random
 
+
+def next_turn(row, column):
+
+    global player
+
+    if buttons[row][column]['text'] == "" and check_winner() is False:
+
+        if player == players[0]:
+
+            buttons[row][column]['text'] = player
+
+            if check_winner() is False:
+                player = players[1]
+                label.config(text=(players[1]+" turn"))
+
+            elif check_winner() is True:
+                label.config(text=(players[0]+" wins"))
+
+            elif check_winner() == "Tie":
+                label.config(text="Tie!")
+
+        else:
+
+            buttons[row][column]['text'] = player
+
+            if check_winner() is False:
+                player = players[0]
+                label.config(text=(players[0]+" turn"))
+
+            elif check_winner() is True:
+                label.config(text=(players[1]+" wins"))
+
+            elif check_winner() == "Tie":
+                label.config(text="Tie!")
 
 def check_winner():
-    for row in board:
-        if row[0]["text"] == row[1]["text"] == row[2]["text"] != "":
-            highlight_winner(row)
+
+    for row in range(3):
+        if buttons[row][0]['text'] == buttons[row][1]['text'] == buttons[row][2]['text'] != "":
+            buttons[row][0].config(bg="green")
+            buttons[row][1].config(bg="green")
+            buttons[row][2].config(bg="green")
             return True
 
-    for col in range(3):
-        if board[0][col]["text"] == board[1][col]["text"] == board[2][col]["text"] != "":
-            highlight_winner([board[i][col] for i in range(3)])
+    for column in range(3):
+        if buttons[0][column]['text'] == buttons[1][column]['text'] == buttons[2][column]['text'] != "":
+            buttons[0][column].config(bg="green")
+            buttons[1][column].config(bg="green")
+            buttons[2][column].config(bg="green")
             return True
 
-    if board[0][0]["text"] == board[1][1]["text"] == board[2][2]["text"] != "":
-        highlight_winner([board[i][i] for i in range(3)])
+    if buttons[0][0]['text'] == buttons[1][1]['text'] == buttons[2][2]['text'] != "":
+        buttons[0][0].config(bg="green")
+        buttons[1][1].config(bg="green")
+        buttons[2][2].config(bg="green")
         return True
 
-    if board[0][2]["text"] == board[1][1]["text"] == board[2][0]["text"] != "":
-        highlight_winner([board[i][2 - i] for i in range(3)])
+    elif buttons[0][2]['text'] == buttons[1][1]['text'] == buttons[2][0]['text'] != "":
+        buttons[0][2].config(bg="green")
+        buttons[1][1].config(bg="green")
+        buttons[2][0].config(bg="green")
         return True
 
-    return False
+    elif empty_spaces() is False:
+
+        for row in range(3):
+            for column in range(3):
+                buttons[row][column].config(bg="yellow")
+        return "Tie"
+
+    else:
+        return False
 
 
-def highlight_winner(winning_cells):
-    for cell in winning_cells:
-        cell.config(bg="lightgreen")
-    messagebox.showinfo("Game Over", f"Player {player} wins!")
-    reset_board()
+def empty_spaces():
 
+    spaces = 9
 
-def pressed(r, c):
+    for row in range(3):
+        for column in range(3):
+            if buttons[row][column]['text'] != "":
+                spaces -= 1
+
+    if spaces == 0:
+        return False
+    else:
+        return True
+
+def new_game():
+
     global player
-    if board[r][c]["text"] == "" and not check_winner():
-        board[r][c]["text"] = player
-        if check_winner():
-            return
-        player = "O" if player == "X" else "X"
-        label.config(text=f"Player {player}'s turn")
+
+    player = random.choice(players)
+
+    label.config(text=player+" turn")
+
+    for row in range(3):
+        for column in range(3):
+            buttons[row][column].config(text="",bg="#F0F0F0")
 
 
-def reset_board():
-    global player
-    for row in board:
-        for cell in row:
-            cell.config(text="", bg="white")
-    player = "X"
-    label.config(text="Player X's turn")
+window = Tk()
+window.title("Tic-Tac-Toe")
+players = ["x","o"]
+player = random.choice(players)
+buttons = [[0,0,0],
+           [0,0,0],
+           [0,0,0]]
+titlelabel=Label(text="Welcome To Tic-Tac-Toe Game", font=("Arial",20), bg="lightblue")
+titlelabel.pack(side="top")
+label = Label(text=player + " turn", font=('consolas',40))
+label.pack(side="top")
 
+reset_button = Button(text="restart", font=('consolas',20), command=new_game)
+reset_button.pack(side="top")
 
-root = tk.Tk()
-root.title("Tic-Tac-Toe")
-
-player = "X"
-board = [[None] * 3 for _ in range(3)]
-label = tk.Label(root, text="Player X's turn", font=("Arial", 14))
-label.pack()
-
-frame = tk.Frame(root)
+frame = Frame(window)
 frame.pack()
 
-for r in range(3):
-    for c in range(3):
-        board[r][c] = tk.Button(frame, text="", font=("Arial", 20), width=5, height=2,
-                                command=lambda r=r, c=c: pressed(r, c))
-        board[r][c].grid(row=r, column=c)
+for row in range(3):
+    for column in range(3):
+        buttons[row][column] = Button(frame, text="",font=('consolas',40), width=5, height=2,
+                                      command= lambda row=row, column=column: next_turn(row,column))
+        buttons[row][column].grid(row=row,column=column)
 
-reset_button = tk.Button(root, text="Reset", command=reset_board, font=("Arial", 12))
-reset_button.pack()
-
-root.mainloop()
+window.mainloop()
